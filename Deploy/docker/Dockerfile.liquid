@@ -1,0 +1,22 @@
+FROM rust:1-bookworm AS builder
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev && rm -rf /var/lib/apt/lists/*
+ENV PROTOC_INCLUDE=/usr/include
+
+COPY Cargo.toml Cargo.toml
+{% if has_cargo_lock %}COPY Cargo.lock Cargo.lock
+{% endif %}COPY {{ generated_project_dir }}/Cargo.toml {{ generated_project_dir }}/Cargo.toml
+COPY {{ generated_project_dir }}/.cargo/config.toml {{ generated_project_dir }}/.cargo/config.toml
+COPY {{ generated_project_dir }}/src/main.rs {{ generated_project_dir }}/src/main.rs
+{% for path in local_paths %}COPY {{ path }} {{ path }}
+{% endfor %}
+WORKDIR /workspace/{{ generated_project_dir }}
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+WORKDIR /srv
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /workspace/target/release/{{ executable_name }} /srv/{{ executable_name }}
+COPY config.yml /srv/config.yml
+ENTRYPOINT ["/srv/{{ executable_name }}"]
