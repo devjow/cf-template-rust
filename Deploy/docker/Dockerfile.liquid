@@ -5,12 +5,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends protobuf-compil
 ENV PROTOC_INCLUDE=/usr/include
 
 COPY Cargo.toml Cargo.toml
-{% if has_cargo_lock %}COPY Cargo.lock Cargo.lock
-{% endif %}COPY {{ generated_project_dir }}/Cargo.toml {{ generated_project_dir }}/Cargo.toml
+{{ copy_cargo_lock }}COPY {{ generated_project_dir }}/Cargo.toml {{ generated_project_dir }}/Cargo.toml
 COPY {{ generated_project_dir }}/.cargo/config.toml {{ generated_project_dir }}/.cargo/config.toml
 COPY {{ generated_project_dir }}/src/main.rs {{ generated_project_dir }}/src/main.rs
-{% for path in local_paths %}COPY {{ path }} {{ path }}
-{% endfor %}
+{{ copy_local_paths }}
 WORKDIR /workspace/{{ generated_project_dir }}
 RUN cargo build --release
 
