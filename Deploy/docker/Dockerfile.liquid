@@ -17,4 +17,5 @@ WORKDIR /srv
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /workspace/target/release/{{ executable_name }} /srv/{{ executable_name }}
 COPY config.yml /srv/config.yml
+ENV CF_CLI_CONFIG=/srv/config.yml
 ENTRYPOINT ["/srv/{{ executable_name }}"]
