@@ -25,8 +25,7 @@ impl RunnableCapability for HelloWorldModule {
         let interval_secs = self
             .config
             .get()
-            .map(|c| c.interval)
-            .unwrap_or_else(default_interval);
+            .map_or_else(default_interval, |c| c.interval);
 
         tokio::spawn(async move {
             loop {

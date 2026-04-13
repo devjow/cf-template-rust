@@ -9,12 +9,12 @@ odata = []
 
 [dependencies]
 # Core async trait helper exposed by ModKit
-cf-modkit = { version = "0.6.2" }
+cf-modkit = { version = "=0.6.2" }
 
 # OData contract and pagination types
-cf-modkit-odata = { version = "0.6.2" }
-cf-modkit-sdk = { version = "0.6.2" }
-cf-modkit-odata-macros = { version = "0.6.2" }
+cf-modkit-odata = { version = "=0.6.2" }
+cf-modkit-sdk = { version = "=0.6.2" }
+cf-modkit-odata-macros = { version = "=0.6.2" }
 
 # Data model + errors
 thiserror = "2.0"

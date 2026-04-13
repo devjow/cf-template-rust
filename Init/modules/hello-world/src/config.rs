@@ -18,6 +18,6 @@ impl Default for Config {
 #[allow(clippy::unwrap_used)] // The number is always non-zero
 pub const DEFAULT_INTERVAL: NonZeroU64 = NonZeroU64::new(2).unwrap();
 
-pub fn default_interval() -> NonZeroU64 {
+pub const fn default_interval() -> NonZeroU64 {
     DEFAULT_INTERVAL
 }

@@ -1,2 +1,3 @@
 [template]
-sub_templates = ["background-worker", "api-db-handler", "grpc-gateway", "rest-gateway"]
+sub_templates = ["background-worker", "api-db-handler", "rest-gateway"]
+ignore = [".DS_Store", ".cyberfabric", "target"]
