@@ -1,0 +1,85 @@
+name: Validate Templates
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/validate-templates.yml"
+      - "bacon.toml"
+      - "README.md"
+      - "Init/**"
+      - "Modules/**"
+      - "scripts/validate-templates.sh"
+
+# Cancel previous runs for the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate ${{ matrix.template_name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - template_name: Init
+            template_dir: Init
+            target_suffix: init
+          - template_name: api-db-handler
+            template_dir: Modules/api-db-handler
+            target_suffix: modules-api-db-handler
+          - template_name: background-worker
+            template_dir: Modules/background-worker
+            target_suffix: modules-background-worker
+          - template_name: rest-gateway
+            template_dir: Modules/rest-gateway
+            target_suffix: modules-rest-gateway
+    permissions:
+      contents: read
+    env:
+      CARGO_TERM_COLOR: always
+      GENERATED_PROJECT_NAME: generated-${{ matrix.target_suffix }}
+      GENERATED_PROJECT_ROOT: .bacon/validate-templates/generated-${{ matrix.target_suffix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: clippy
+
+      - name: Run sccache-cache
+        if: ${{ !env.ACT }}
+        uses: mozilla-actions/sccache-action@v0.0.9
+      - name: Set Rust caching env vars
+        if: ${{ !env.ACT }}
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> "$GITHUB_ENV"
+          echo "RUSTC_WRAPPER=sccache" >> "$GITHUB_ENV"
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            .bacon/validate-templates/target
+          key: validate-templates-${{ runner.os }}
+
+      - name: Clean generated project directory
+        run: |
+          mkdir -p "$GENERATED_PROJECT_ROOT"
+
+      - name: Generate template
+        uses: cargo-generate/cargo-generate-action@v0.20.0
+        with:
+          name: ${{ env.GENERATED_PROJECT_NAME }}
+          template: ${{ matrix.template_dir }}
+          arguments: --destination ${{ env.GENERATED_PROJECT_ROOT }} --vcs none --overwrite --init
+
+      - name: Validate generated template
+        run: |
+          cargo clippy --manifest-path "$GENERATED_PROJECT_ROOT/Cargo.toml" --workspace --all-targets --all-features -- -D warnings
+          cargo test --manifest-path "$GENERATED_PROJECT_ROOT/Cargo.toml" --workspace --all-targets --all-features

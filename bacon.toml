@@ -1,0 +1,48 @@
+default_job = "validate-templates"
+
+[jobs.validate-templates]
+command = [
+    "bash",
+    "-lc",
+    "./scripts/validate-templates.sh Init && ./scripts/validate-templates.sh Modules/api-db-handler && ./scripts/validate-templates.sh Modules/background-worker && ./scripts/validate-templates.sh Modules/rest-gateway",
+]
+need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
+watch = ["Init", "Modules", "bacon.toml", "scripts/validate-templates.sh"]
+
+[jobs.validate-init]
+command = ["./scripts/validate-templates.sh", "Init"]
+need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
+watch = ["Init", "bacon.toml", "scripts/validate-templates.sh"]
+
+[jobs.validate-api-db-handler]
+command = ["./scripts/validate-templates.sh", "Modules/api-db-handler"]
+need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
+watch = [
+    "Modules/api-db-handler",
+    "bacon.toml",
+    "scripts/validate-templates.sh",
+]
+
+[jobs.validate-background-worker]
+command = ["./scripts/validate-templates.sh", "Modules/background-worker"]
+need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
+watch = [
+    "Modules/background-worker",
+    "bacon.toml",
+    "scripts/validate-templates.sh",
+]
+
+[jobs.validate-rest-gateway]
+command = ["./scripts/validate-templates.sh", "Modules/rest-gateway"]
+need_stdout = true
+background = false
+on_change_strategy = "kill_then_restart"
+watch = ["Modules/rest-gateway", "bacon.toml", "scripts/validate-templates.sh"]
