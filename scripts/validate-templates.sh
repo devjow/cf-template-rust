@@ -21,7 +21,7 @@ manifest_path="$project_root/Cargo.toml"
 template_target_dir="$target_root/$(slugify "$template_dir")"
 
 mkdir -p "$project_root" "$template_target_dir"
-find "$project_root" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+find "$project_root" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 
 echo "==> Validating $template_dir"
 cargo generate --path "$template_dir" --destination "$project_root" --name "$project_name" --silent --vcs none --overwrite --init >/dev/null

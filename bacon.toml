@@ -2,7 +2,7 @@ default_job = "validate-templates"
 
 [jobs.validate-templates]
 command = [
-    "zsh",
+    "bash",
     "-lc",
     "./scripts/validate-templates.sh Init && ./scripts/validate-templates.sh Modules/api-db-handler && ./scripts/validate-templates.sh Modules/background-worker && ./scripts/validate-templates.sh Modules/rest-gateway",
 ]
