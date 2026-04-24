@@ -1,0 +1,12 @@
+ARG RUST_IMG=rust:1-bookworm
+ARG DEBIAN_IMG=debian:bookworm-slim
+
+# --- Builder base: Rust toolchain + protobuf compiler ---
+FROM ${RUST_IMG} AS builder-base
+RUN apt-get update && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev && rm -rf /var/lib/apt/lists/*
+ENV PROTOC_INCLUDE=/usr/include
+
+# --- Runner base: minimal runtime with CA certificates ---
+FROM ${DEBIAN_IMG} AS runner-base
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /srv
